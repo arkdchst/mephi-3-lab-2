@@ -1,14 +1,15 @@
 #pragma once
 
 template <typename T>
-LinkedList<T>::LinkedList()
+List<T>::List()
 	: size(0){}
 
 template <typename T>
-LinkedList<T>::LinkedList(const T *items, std::size_t size) : LinkedList() {
+List<T>::List(const T *items, std::size_t size) : List() {
 	Record *ptr = &(this->head);
 	for(std::size_t i = 0; i < size; ++i){
-		ptr->next = new Record{.item=items[i]};
+		ptr->next = new Record(items[i]);
+
 		ptr = ptr->next;
 	}
 
@@ -16,10 +17,10 @@ LinkedList<T>::LinkedList(const T *items, std::size_t size) : LinkedList() {
 }
 
 template <typename T>
-LinkedList<T>::LinkedList(std::size_t size) : LinkedList() {
+List<T>::List(std::size_t size) : List() {
 	Record *ptr = &(this->head);
 	for(std::size_t i = 0; i < size; i++){
-		ptr->next = new Record{.item=T()};
+		ptr->next = new Record(T());
 		ptr = ptr->next;
 	}
 
@@ -27,12 +28,12 @@ LinkedList<T>::LinkedList(std::size_t size) : LinkedList() {
 }
 
 template <typename T>
-LinkedList<T>::LinkedList(const LinkedList<T> &list){
+List<T>::List(const List<T> &list){
 	const Record *other = &(list.head);
 	Record *ptr = &(this->head);
 
 	while(other->next != nullptr){
-		ptr->next = new Record{.item=other->next->item};
+		ptr->next = new Record(*(other->next->item));
 
 		other = other->next;
 		ptr = ptr->next;
@@ -42,7 +43,7 @@ LinkedList<T>::LinkedList(const LinkedList<T> &list){
 }
 
 template <typename T>
-LinkedList<T>::~LinkedList(){
+List<T>::~List(){
 	Record *ptr = this->head.next;
 	Record *next;
 	while(ptr != nullptr){
@@ -54,16 +55,27 @@ LinkedList<T>::~LinkedList(){
 	this->size = 0;
 }
 
+template <typename T>
+List<T>& List<T>::operator=(const List<T> &other){
+	if(this == &other) return *this;
+
+	List<T> temp(other);
+
+	std::swap(this->head, temp.head);
+	std::swap(this->size, temp.size);
+
+	return *this;
+}
 
 template <typename T>
-T& LinkedList<T>::getFirst(){
+T& List<T>::getFirst(){
 	if(this->size == 0) throw std::length_error(ZERO_SIZE);
 
 	return *(this->head.next->item);
 }
 
 template <typename T>
-T& LinkedList<T>::getLast(){
+T& List<T>::getLast(){
 	if(this->size == 0) throw std::length_error(ZERO_SIZE);
 
 	Record *ptr = &(this->head);
@@ -72,7 +84,7 @@ T& LinkedList<T>::getLast(){
 }
 
 template <typename T>
-T& LinkedList<T>::get(std::size_t index){
+T& List<T>::get(std::size_t index){
 	if(index >= this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
 
 
@@ -85,7 +97,7 @@ T& LinkedList<T>::get(std::size_t index){
 }
 
 template <typename T>
-void LinkedList<T>::set(const T &item, std::size_t index){
+void List<T>::set(const T &item, std::size_t index){
 	if(index >= this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
 
 
@@ -98,14 +110,14 @@ void LinkedList<T>::set(const T &item, std::size_t index){
 }
 
 template <typename T>
-std::unique_ptr<LinkedList<T>> LinkedList<T>::getSublist(std::size_t start, std::size_t end){ //end excluding
+std::unique_ptr<List<T>> List<T>::getSublist(std::size_t start, std::size_t end){ //end excluding
 	if(!(0 <= start && start <= end && end <= this->size)){
 		if(start >= this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
 		if(end > this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
 		if(start > end) throw std::logic_error("end must be not less than start");
 	}
 
-	LinkedList<T> *newList = new LinkedList<T>();
+	List<T> *newList = new List<T>();
 
 
 	Record *ptr = &(this->head);
@@ -114,7 +126,7 @@ std::unique_ptr<LinkedList<T>> LinkedList<T>::getSublist(std::size_t start, std:
 	for(std::size_t i = 0; i < start; i++) ptr = ptr->next;
 
 	for(std::size_t i = 0; i < end - start; i++){
-		newPtr->next = new Record{.item = ptr->next->item};
+		newPtr->next = new Record(ptr->next->item);
 
 		ptr = ptr->next;
 		newPtr = newPtr->next;
@@ -122,32 +134,34 @@ std::unique_ptr<LinkedList<T>> LinkedList<T>::getSublist(std::size_t start, std:
 
 	newList->size = end - start;
 
-	return std::unique_ptr<LinkedList<T>>(newList);
+	return std::unique_ptr<List<T>>(newList);
 }
 
 template <typename T>
-std::size_t LinkedList<T>::getSize(){ return this->size; }
+std::size_t List<T>::getSize(){ return this->size; }
 
 template <typename T>
-void LinkedList<T>::append(const T &item){
+void List<T>::append(const T &item){
 	Record *ptr = &(this->head);
 	while(ptr->next != nullptr) ptr = ptr->next;
 
-	ptr->next = new Record{.item=item};
+	ptr->next = new Record(item);
+
+
 
 	this->size++;
 }
 
 template <typename T>
-void LinkedList<T>::prepend(const T &item){
-	Record *newRec = new Record{.item=item, .next=this->head.next};
+void List<T>::prepend(const T &item){
+	Record *newRec = new Record(item, this->head.next);
 	this->head.next = newRec;
 
 	this->size++;		
 }
 
 template <typename T>
-void LinkedList<T>::removeAt(std::size_t index){
+void List<T>::removeAt(std::size_t index){
 	if(index >= this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
 
 	Record *ptr = &(this->head);
@@ -162,45 +176,48 @@ void LinkedList<T>::removeAt(std::size_t index){
 }
 
 template <typename T>
-void LinkedList<T>::insertAt(const T &item, std::size_t index){
+void List<T>::insertAt(const T &item, std::size_t index){
 	if(index > this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
 
 
 	Record *ptr = &(this->head);
 	for(std::size_t i = 0; i < index; i++) ptr = ptr->next;
 
-	Record *newRec = new Record{.item = item, .next = ptr->next};
+	Record *newRec = new Record(item = item, ptr->next);
+
+
 	ptr->next = newRec;
 
 	this->size++;
 }
 
 template <typename T>
-std::unique_ptr<LinkedList<T>> LinkedList<T>::concat(const LinkedList<T> &list){
+std::unique_ptr<List<T>> List<T>::concat(const List<T> &list){
 	Record *ptr1 = &(this->head);
 	const Record *ptr2 = &(list.head);
 
-	LinkedList<T> *newList = new LinkedList<T>();
+	List<T> *newList = new List<T>();
 	Record *ptr = &(newList->head);
 	while(ptr1->next != nullptr){
-		ptr->next = new Record{.item=ptr1->next->item};
+		ptr->next = new Record(ptr1->next->item);
 
 		ptr1 = ptr1->next;
 		ptr = ptr->next;
 	}
 	while(ptr2->next != nullptr){
-		ptr->next = new Record{.item=ptr2->next->item};
+		ptr->next = new Record(ptr2->next->item);
 
 		ptr2 = ptr2->next;
 		ptr = ptr->next;
 	}
 
 	newList->size = this->size + list.size;
-	return std::unique_ptr<LinkedList<T>>(newList);
+	return std::unique_ptr<List<T>>(newList);
 }
 
 
+
 template <typename T>
-typename LinkedList<T>::Iterator LinkedList<T>::begin(){
-	return LinkedList<T>::Iterator(&(this->head), this);
+typename List<T>::Iterator List<T>::begin(){
+	return List<T>::Iterator(&(this->head), this);
 }

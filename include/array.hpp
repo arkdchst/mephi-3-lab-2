@@ -9,7 +9,7 @@ private:
 	T *data = nullptr;
 	std::size_t size = 0;
 public:
-	const std::string INDEX_OUT_OF_RANGE = "index out of range";
+	static const std::string INDEX_OUT_OF_RANGE;
 
 	DynamicArray();
 	DynamicArray(std::size_t size);
@@ -17,13 +17,16 @@ public:
 	DynamicArray(const DynamicArray<T> &array, std::size_t size);
 	DynamicArray(const DynamicArray<T> &array);
 	virtual ~DynamicArray();
+	DynamicArray<T>& operator=(const DynamicArray &array);
+	
 	T& get(std::size_t index);
 	std::size_t getSize();
 	void set(const T &value, std::size_t index);
 	void resize(std::size_t size);
 	bool operator==(const DynamicArray<T> &arr) const;
-	DynamicArray<T>& operator=(const DynamicArray &array);
 };
+template <typename T>
+const std::string DynamicArray<T>::INDEX_OUT_OF_RANGE = "index out of range";
 
 
 #include "array.tpp"

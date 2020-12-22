@@ -48,9 +48,9 @@ public:
 
 template <typename T> class ListSequence : public Sequence<T>{
 protected:
-	LinkedList<T> *list;
+	List<T> *list;
 
-	ListSequence(LinkedList<T> *list);
+	ListSequence(List<T> *list);
 public:
 	ListSequence();
 	ListSequence(const ListSequence<T> &seq);

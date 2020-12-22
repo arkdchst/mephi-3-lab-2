@@ -4,15 +4,25 @@
 #include <string>
 #include <cstddef>
 #include <memory>
-#include <optional>
 
 
 template <typename T>
-class LinkedList {
+class List {
 private:
 	struct Record{
-		std::optional<T> item;
+		T *item = nullptr;
 		Record *next = nullptr;
+
+		Record(T item, Record *next = nullptr) : next(next) {
+			this->item = new T(item);
+		}
+
+		Record(Record *next = nullptr)
+			: next(next) {}
+
+		~Record(){
+			if(item) delete item;
+		}
 	};
 	Record head;
 	std::size_t size = 0;
@@ -22,53 +32,59 @@ public:
 
 	class Iterator;
 
-	LinkedList();
-	LinkedList(const T *items, std::size_t size);
-	LinkedList(std::size_t size);
-	LinkedList(const LinkedList<T> &list);
-	virtual ~LinkedList();
+	List();
+	List(const T *items, std::size_t size);
+	List(std::size_t size);
+	List(const List<T> &list);
+	virtual ~List();
+
+	List<T>& operator=(const List<T> &other);
+
 	T& getFirst();
 	T& getLast();
 	T& get(std::size_t index);
 	void set(const T &item, std::size_t index);
-	std::unique_ptr<LinkedList<T>> getSublist(std::size_t start, std::size_t end);
+	std::unique_ptr<List<T>> getSublist(std::size_t start, std::size_t end);
 	std::size_t getSize();
 	void append(const T &item);
 	void prepend(const T &item);
 	void removeAt(std::size_t index);
 	void insertAt(const T &item, std::size_t index);
-	std::unique_ptr<LinkedList<T>> concat(const LinkedList<T> &list);
+	std::unique_ptr<List<T>> concat(const List<T> &list);
 
-	LinkedList<T>::Iterator begin();
+
+	List<T>::Iterator begin();
 };
 template <typename T>
-const std::string LinkedList<T>::INDEX_OUT_OF_RANGE = "index out of range";
+const std::string List<T>::INDEX_OUT_OF_RANGE = "index out of range";
 template <typename T>
-const std::string LinkedList<T>::ZERO_SIZE = "size is 0";
+const std::string List<T>::ZERO_SIZE = "size is 0";
 
 
 template <typename T>
-class LinkedList<T>::Iterator {
+class List<T>::Iterator {
 private:
-	Record *current = nullptr;
-	Record *prev = nullptr;
+	Record *currentRec = nullptr;
+	Record *prevRec = nullptr;
 
-	LinkedList<T> *list;
+	List<T> *list;
 public:
-	static const std::string NEXT_IS_NULL;
-	static const std::string NOTHING_TO_REMOVE;
+	static const std::string NO_NEXT_ELEM;
+	static const std::string NO_CURRENT_ELEM;
 
-	Iterator(Record *current, LinkedList<T> *list);
+	Iterator(Record *currentRec, List<T> *list);
 
 	T& next();
+	void go();
+	T& current();
 	void remove();
 	bool hasNext();
-	// void insert(const T &item);
+	void insert(const T &item);
 };
 template <typename T>
-const std::string LinkedList<T>::Iterator::NEXT_IS_NULL = "there is no next element";
+const std::string List<T>::Iterator::NO_NEXT_ELEM = "there is no next element";
 template <typename T>
-const std::string LinkedList<T>::Iterator::NOTHING_TO_REMOVE = "nothing to remove";
+const std::string List<T>::Iterator::NO_CURRENT_ELEM = "there is no current element";
 
 
 #include "list.tpp"

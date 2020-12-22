@@ -13,7 +13,7 @@ DynamicArray<T>::DynamicArray(std::size_t size) : size(size) {
 template <typename T>
 DynamicArray<T>::DynamicArray(const T *data, std::size_t size) : DynamicArray(size) {
 	for(std::size_t i = 0; i < size; i++)
-		this->data[i] = data[i];
+		this->data[i] = T(data[i]);
 }
 
 template <typename T>
@@ -33,6 +33,19 @@ DynamicArray<T>::~DynamicArray(){
 	delete[] this->data;
 	this->size = 0;
 }
+
+template <typename T>
+DynamicArray<T>& DynamicArray<T>::operator=(const DynamicArray<T> &array){
+	delete[] this->data;
+
+	DynamicArray<T> temp(array);
+
+	std::swap(this->data, temp.data);
+	std::swap(this->size, temp.size);
+
+	return *this;
+}
+
 
 template <typename T>
 T& DynamicArray<T>::get(std::size_t index){
@@ -72,18 +85,5 @@ bool DynamicArray<T>::operator==(const DynamicArray<T> &arr) const {
 	
 
 	return true;
-}
-
-template <typename T>
-DynamicArray<T>& DynamicArray<T>::operator=(const DynamicArray &array){
-	delete[] this->data;
-
-	this->size = array.size;
-	this->data = new T[this->size];
-
-	for(std::size_t i = 0; i < size; i++)
-		this->data[i] = array.data[i];
-
-	return *this;
 }
 

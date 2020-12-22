@@ -148,29 +148,29 @@ ArraySequence<T>* ArraySequence<T>::concat(const Sequence<T>& seq) const {
 
 
 template <typename T>
-ListSequence<T>::ListSequence(LinkedList<T> *list){
+ListSequence<T>::ListSequence(List<T> *list){
 	this->list = list;
 }
 
 template <typename T>
 ListSequence<T>::ListSequence(){
-	this->list = new LinkedList<T>();
+	this->list = new List<T>();
 }
 
 template <typename T>
 ListSequence<T>::ListSequence(const ListSequence<T> &seq){
-	this->list = new LinkedList<T>(*seq.list);
+	this->list = new List<T>(*seq.list);
 }
 
 
 template <typename T>
 ListSequence<T>::ListSequence(const T *items, int size){
-	this->list = new LinkedList<T>(items, size);
+	this->list = new List<T>(items, size);
 }
 
 template <typename T>
 ListSequence<T>::ListSequence(int size){
-	this->list = new LinkedList<T>(size);
+	this->list = new List<T>(size);
 }
 
 template <typename T>
@@ -201,7 +201,7 @@ int ListSequence<T>::getSize() const {
 
 template <typename T>
 ListSequence<T>* ListSequence<T>::getSubsequence(int start, int end) const {
-	LinkedList<T> *subList = this->list->getSublist(start, end);
+	List<T> *subList = this->list->getSublist(start, end);
 	ListSequence<T> *seq = new ListSequence<T>(subList);
 	return seq;
 }
