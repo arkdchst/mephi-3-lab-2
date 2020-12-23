@@ -5,6 +5,11 @@ HashTableBase<K, V>::HashTableBase() :
 
 template <typename K, typename V>
 V& HashTableBase<K, V>::get(const K &key){
+	return const_cast<V&>(const_cast<const HashTableBase<K, V>*>(this)->get(key));
+}
+
+template <typename K, typename V>
+const V& HashTableBase<K, V>::get(const K &key) const {
 	unsigned num = this->hash(key);
 	auto it = this->data.get(num).begin();
 
@@ -33,7 +38,7 @@ void HashTableBase<K, V>::set(const K &key, const V &value){
 }
 
 template <typename K, typename V>
-bool HashTableBase<K, V>::contains(const K &key){
+bool HashTableBase<K, V>::contains(const K &key) const {
 	unsigned num = this->hash(key);
 	auto it = this->data.get(num).begin();
 
@@ -64,8 +69,8 @@ void HashTableBase<K, V>::remove(const K &key){
 
 
 template <typename K, typename V>
-typename HashTableBase<K,V>::Iterator HashTableBase<K, V>::iterator(){
-	return Iterator(this);
+std::unique_ptr< typename IDictionary<K,V>::Iterator > HashTableBase<K, V>::iterator(){
+	return std::make_unique< HashTableBase<K,V>::Iterator >(this);
 }
 
 
@@ -74,12 +79,7 @@ template <typename K, typename V>
 HashTableBase<K,V>::Iterator::Iterator(HashTableBase<K,V> *table) : table(table){}
 
 template <typename K, typename V>
-HashTableBase<K,V>::Iterator::~Iterator(){
-	if(this->it){
-		delete this->it;
-		this->it = nullptr;
-	}
-}
+HashTableBase<K,V>::Iterator::~Iterator(){}
 
 
 template <typename K, typename V>
@@ -93,7 +93,7 @@ template <typename K, typename V>
 bool HashTableBase<K,V>::Iterator::findNext(){
 	if(this->initFlag){
 		if(this->table->size == 0) return false;
-		this->it = new typename List<Pair<K, V>>::Iterator(this->table->data.get(0).begin());
+		this->it = std::make_unique< typename List<Pair<K, V>>::Iterator >(this->table->data.get(0).begin());
 
 		this->initFlag = false;
 	}
@@ -101,11 +101,8 @@ bool HashTableBase<K,V>::Iterator::findNext(){
 	while(!this->it->hasNext()){
 		if(this->i + 1 >= this->table->size) return false;
 		this->i++;
-		if(this->it){
-			delete this->it;
-			this->it = nullptr;
-		}
-		this->it = new typename List<Pair<K, V>>:: Iterator(this->table->data.get(this->i).begin());
+
+		this->it = std::make_unique< typename List<Pair<K, V>>:: Iterator>(this->table->data.get(this->i).begin());
 	}
 
 	return true;
@@ -135,7 +132,7 @@ bool HashTableBase<K,V>::Iterator::hasNext(){
 template <typename V>
 class HashTable<int, V> : public HashTableBase<int, V>{
 private:
-	virtual unsigned hash(int key){
+	virtual unsigned hash(int key) const {
 		return key % this->size;
 	}
 };
@@ -143,7 +140,7 @@ private:
 template <typename V>
 class HashTable<std::string, V> : public HashTableBase<std::string, V>{
 private:
-	virtual unsigned hash(std::string key){
+	virtual unsigned hash(std::string key) const {
 		return key.size() % this->size;
 	}
 };

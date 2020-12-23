@@ -48,14 +48,19 @@ DynamicArray<T>& DynamicArray<T>::operator=(const DynamicArray<T> &array){
 
 
 template <typename T>
-T& DynamicArray<T>::get(std::size_t index){
+const T& DynamicArray<T>::get(std::size_t index) const {
 	if(index >= this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
 
 	return this->data[index];
 }
 
 template <typename T>
-std::size_t DynamicArray<T>::getSize(){ return this->size; }
+T& DynamicArray<T>::get(std::size_t index){
+	return const_cast<T&>(const_cast<const DynamicArray<T>*>(this)->get(index));
+}
+
+template <typename T>
+std::size_t DynamicArray<T>::getSize() const { return this->size; }
 
 template <typename T>
 void DynamicArray<T>::set(const T &value, std::size_t index){

@@ -69,6 +69,11 @@ List<T>& List<T>::operator=(const List<T> &other){
 
 template <typename T>
 T& List<T>::getFirst(){
+	return const_cast<T&>(const_cast<const List<T>*>(this)->getFirst());
+}
+
+template <typename T>
+const T& List<T>::getFirst() const {
 	if(this->size == 0) throw std::length_error(ZERO_SIZE);
 
 	return *(this->head.next->item);
@@ -76,6 +81,11 @@ T& List<T>::getFirst(){
 
 template <typename T>
 T& List<T>::getLast(){
+	return const_cast<T&>(const_cast<const List<T>*>(this)->getLast());
+}
+
+template <typename T>
+const T& List<T>::getLast() const{
 	if(this->size == 0) throw std::length_error(ZERO_SIZE);
 
 	Record *ptr = &(this->head);
@@ -85,16 +95,22 @@ T& List<T>::getLast(){
 
 template <typename T>
 T& List<T>::get(std::size_t index){
+	return const_cast<T&>(const_cast<const List<T>*>(this)->get(index));
+}
+
+template <typename T>
+const T& List<T>::get(std::size_t index) const {
 	if(index >= this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
 
 
-	Record *ptr = &(this->head);
+	const Record *ptr = &(this->head);
 	for(std::size_t i = 0; i < index + 1; i++){
 		ptr = ptr->next;
 	}
 
 	return *(ptr->item);
 }
+
 
 template <typename T>
 void List<T>::set(const T &item, std::size_t index){
@@ -110,7 +126,7 @@ void List<T>::set(const T &item, std::size_t index){
 }
 
 template <typename T>
-std::unique_ptr<List<T>> List<T>::getSublist(std::size_t start, std::size_t end){ //end excluding
+std::unique_ptr<List<T>> List<T>::getSublist(std::size_t start, std::size_t end) const { //end excluding
 	if(!(0 <= start && start <= end && end <= this->size)){
 		if(start >= this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
 		if(end > this->size) throw std::out_of_range(INDEX_OUT_OF_RANGE);
@@ -138,7 +154,7 @@ std::unique_ptr<List<T>> List<T>::getSublist(std::size_t start, std::size_t end)
 }
 
 template <typename T>
-std::size_t List<T>::getSize(){ return this->size; }
+std::size_t List<T>::getSize() const { return this->size; }
 
 template <typename T>
 void List<T>::append(const T &item){
@@ -192,7 +208,7 @@ void List<T>::insertAt(const T &item, std::size_t index){
 }
 
 template <typename T>
-std::unique_ptr<List<T>> List<T>::concat(const List<T> &list){
+std::unique_ptr<List<T>> List<T>::concat(const List<T> &list) const {
 	Record *ptr1 = &(this->head);
 	const Record *ptr2 = &(list.head);
 
@@ -215,9 +231,23 @@ std::unique_ptr<List<T>> List<T>::concat(const List<T> &list){
 	return std::unique_ptr<List<T>>(newList);
 }
 
+template <typename T>
+bool List<T>::operator==(const List<T> &other) const{
+	if(this->getSize() != other.getSize()) return false;
 
+	for(int i = 0; i < this->getSize(); i++){
+		if(this->get(i) != other.get(i)) return false;
+	}
+	return true;
+}
 
 template <typename T>
 typename List<T>::Iterator List<T>::begin(){
 	return List<T>::Iterator(&(this->head), this);
 }
+
+template <typename T>
+typename List<T>::ConstIterator List<T>::begin() const{
+	return List<T>::ConstIterator(&(this->head), this);
+}
+

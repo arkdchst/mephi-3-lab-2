@@ -1,11 +1,9 @@
 #pragma once
 
-#include "base.hpp"
-
 #include <stdexcept>
 
 template <typename T>
-Sequence<T>* Sequence<T>::clone() const {
+std::unique_ptr<Sequence<T>> Sequence<T>::clone() const {
 	return this->getSubsequence(0, this->getSize());
 }
 
@@ -74,17 +72,17 @@ int ArraySequence<T>::getSize() const {
 
 template <typename T>
 void ArraySequence<T>::set(const T &item, int index) {
-	if(index < 0 || index >= this->getSize()) throw std::out_of_range(INDEX_OUT_OF_RANGE_MESSAGE);
+	if(index < 0 || index >= this->getSize()) throw std::out_of_range(this->INDEX_OUT_OF_RANGE_MESSAGE);
 
 	this->array->set(item, index);
 }
 
 
 template <typename T>
-ArraySequence<T>* ArraySequence<T>::getSubsequence(int start, int end) const {
+std::unique_ptr<Sequence<T>> ArraySequence<T>::getSubsequence(int start, int end) const {
 	if(!(0 <= start && start <= end && end <= this->getSize())){
-		if(start < 0 || start >= this->getSize()) throw std::out_of_range(INDEX_OUT_OF_RANGE_MESSAGE);
-		if(end < 0 || end > this->getSize()) throw std::out_of_range(INDEX_OUT_OF_RANGE_MESSAGE);
+		if(start < 0 || start >= this->getSize()) throw std::out_of_range(this->INDEX_OUT_OF_RANGE_MESSAGE);
+		if(end < 0 || end > this->getSize()) throw std::out_of_range(this->INDEX_OUT_OF_RANGE_MESSAGE);
 		if(start > end) throw std::logic_error("end must be not less than start");
 	}
 
@@ -94,7 +92,7 @@ ArraySequence<T>* ArraySequence<T>::getSubsequence(int start, int end) const {
 	
 	ArraySequence<T> *subSequence = new ArraySequence<T>(subArray, end - start);
 
-	return subSequence;
+	return std::unique_ptr<ArraySequence<T>>(subSequence);
 }
 
 template <typename T>
@@ -118,7 +116,7 @@ void ArraySequence<T>::prepend(const T &item) {
 
 template <typename T>
 void ArraySequence<T>::insertAt(const T &item, int index) {
-	if(index < 0 || index > this->getSize()) throw std::out_of_range(INDEX_OUT_OF_RANGE_MESSAGE);
+	if(index < 0 || index > this->getSize()) throw std::out_of_range(this->INDEX_OUT_OF_RANGE_MESSAGE);
 
 	this->array->resize(this->getSize() + 1);
 	T t1 = this->array->get(index);
@@ -132,7 +130,7 @@ void ArraySequence<T>::insertAt(const T &item, int index) {
 }
 
 template <typename T>
-ArraySequence<T>* ArraySequence<T>::concat(const Sequence<T>& seq) const {
+std::unique_ptr<Sequence<T>> ArraySequence<T>::concat(const Sequence<T>& seq) const {
 	DynamicArray<T> *array = new DynamicArray<T>(this->getSize() + seq.getSize());
 	ArraySequence<T> *newSequence = new ArraySequence<T>(array);
 	for(int i = 0; i < this->getSize(); i++)
@@ -141,7 +139,7 @@ ArraySequence<T>* ArraySequence<T>::concat(const Sequence<T>& seq) const {
 	for(int i = 0; i < seq.getSize(); i++)
 		newSequence->set(seq.get(i), i + this->getSize());
 
-	return newSequence;
+	return std::unique_ptr<ArraySequence<T>>(newSequence);
 }
 
 
@@ -200,10 +198,10 @@ int ListSequence<T>::getSize() const {
 }
 
 template <typename T>
-ListSequence<T>* ListSequence<T>::getSubsequence(int start, int end) const {
+std::unique_ptr<Sequence<T>> ListSequence<T>::getSubsequence(int start, int end) const {
 	List<T> *subList = this->list->getSublist(start, end);
 	ListSequence<T> *seq = new ListSequence<T>(subList);
-	return seq;
+	return std::unique_ptr<ArraySequence<T>>(seq);
 }
 
 template <typename T>
@@ -227,7 +225,7 @@ void ListSequence<T>::insertAt(const T &item, int index) {
 }
 
 template <typename T>
-ListSequence<T>* ListSequence<T>::concat(const Sequence<T>& seq) const {
+std::unique_ptr<Sequence<T>> ListSequence<T>::concat(const Sequence<T>& seq) const {
 	ListSequence<T> *newSequence = new ListSequence<T>();
 
 	for(int i = 0; i < this->getSize(); i++)
@@ -236,5 +234,5 @@ ListSequence<T>* ListSequence<T>::concat(const Sequence<T>& seq) const {
 	for(int i = 0; i < seq.getSize(); i++)
 		newSequence->append(seq.get(i));
 
-	return newSequence;
+	return std::unique_ptr<ListSequence<T>>(newSequence);
 }

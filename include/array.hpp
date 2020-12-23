@@ -20,7 +20,8 @@ public:
 	DynamicArray<T>& operator=(const DynamicArray &array);
 	
 	T& get(std::size_t index);
-	std::size_t getSize();
+	const T& get(std::size_t index) const;
+	std::size_t getSize() const;
 	void set(const T &value, std::size_t index);
 	void resize(std::size_t size);
 	bool operator==(const DynamicArray<T> &arr) const;

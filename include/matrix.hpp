@@ -6,6 +6,8 @@ template <typename T>
 class IMatrix{
 public:
 	virtual T& get(std::size_t x, std::size_t y) = 0;
+	virtual const T& get(std::size_t x, std::size_t y) const = 0;
+
 	virtual void set(const T&, std::size_t x, std::size_t y) = 0;
 
 	virtual std::size_t getWidth() const = 0;
@@ -24,6 +26,8 @@ public:
 	virtual ~Matrix();
 
 	virtual T& get(std::size_t x, std::size_t y);
+	virtual const T& get(std::size_t x, std::size_t y) const;
+
 	virtual void set(const T&, std::size_t x, std::size_t y);
 
 	virtual std::size_t getWidth() const;
@@ -71,6 +75,11 @@ Matrix<T>::~Matrix(){
 
 template <typename T>
 T& Matrix<T>:: get(std::size_t x, std::size_t y){
+	return const_cast<T&>(const_cast<const Matrix<T>*>(this)->get(x, y));
+}
+
+template <typename T>
+const T& Matrix<T>:: get(std::size_t x, std::size_t y) const {
 	return this->data->get(x)->get(y);
 }
 

@@ -8,7 +8,7 @@ struct Point{
 	std::size_t x;
 	std::size_t y;
 
-	bool operator==(const Point &other){
+	bool operator==(const Point &other) const {
 		return this->x == other.x && this->y == other.y;
 	}
 };
@@ -16,7 +16,7 @@ struct Point{
 template <typename V>
 class HashTable<Point, V> : public HashTableBase<Point, V>{
 private:
-	virtual unsigned hash(Point key){
+	virtual unsigned hash(Point key) const {
 		return (key.x + key.y) % this->size;
 	}
 };
@@ -36,6 +36,8 @@ public:
 	virtual ~SparseMatrix();
 
 	virtual T& get(std::size_t x, std::size_t y) override;
+	virtual const T& get(std::size_t x, std::size_t y) const override;
+
 	virtual void set(const T&, std::size_t x, std::size_t y) override;
 
 	virtual std::size_t getWidth() const override;

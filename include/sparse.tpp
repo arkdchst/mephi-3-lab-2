@@ -31,6 +31,11 @@ void SparseMatrix<T>::set(const T &item, std::size_t x, std::size_t y){
 
 template <typename T>
 T& SparseMatrix<T>::get(std::size_t x, std::size_t y){
+	return const_cast<T&>(const_cast<const SparseMatrix<T>*>(this)->get(x, y));
+}
+
+template <typename T>
+const T& SparseMatrix<T>::get(std::size_t x, std::size_t y) const {
 	return this->data->get(Point{.x = x, .y = y}); //throws error if element is zero
 }
 
